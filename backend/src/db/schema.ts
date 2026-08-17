@@ -298,3 +298,5 @@ export type NewStock = typeof stocks.$inferInsert;
 export type NewStockMovement = typeof stockMovements.$inferInsert;
 export type NewReceipt = typeof receipts.$inferInsert;
 export type NewReceiptItem = typeof receiptItems.$inferInsert;
+export type NewInventory = typeof inventories.$inferInsert;
+export type NewInventoryItem = typeof inventoryItems.$inferInsert;
