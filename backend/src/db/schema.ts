@@ -280,3 +280,12 @@ export const inventoryItems = pgTable(
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type Article = typeof articles.$inferSelect;
+export type NewArticle = typeof articles.$inferInsert;
+export type Supplier = typeof suppliers.$inferSelect;
+export type NewSupplier = typeof suppliers.$inferInsert;
+export type Location = typeof locations.$inferSelect;
+export type Stock = typeof stocks.$inferSelect;
+export type StockMovement = typeof stockMovements.$inferSelect;
+export type Receipt = typeof receipts.$inferSelect;
+export type Inventory = typeof inventories.$inferSelect;

@@ -1,0 +1,37 @@
+import type { Request, Response } from "express";
+import { articleService } from "../services/articleService.js";
+
+export async function list(req: Request, res: Response) {
+  const { search, active, page = 1, limit = 20 } = req.query;
+
+  const activeFilter = active === "true" ? true : active === "false" ? false : undefined;
+
+  const result = await articleService.list({
+    search: typeof search === "string" ? search : undefined,
+    active: activeFilter,
+    page: Number(page),
+    limit: Number(limit),
+  });
+
+  res.json(result);
+}
+
+export async function getById(req: Request, res: Response) {
+  const article = await articleService.getById(Number(req.params.id));
+  res.json(article);
+}
+
+export async function create(req: Request, res: Response) {
+  const article = await articleService.create(req.body);
+  res.status(201).json(article);
+}
+
+export async function update(req: Request, res: Response) {
+  const article = await articleService.update(Number(req.params.id), req.body);
+  res.json(article);
+}
+
+export async function setActive(req: Request, res: Response) {
+  const article = await articleService.setActive(Number(req.params.id), req.body.active);
+  res.json(article);
+}
