@@ -8,6 +8,8 @@ import { supplierRouter } from "./routes/supplierRoutes.js";
 import { warehouseRouter } from "./routes/warehouseRoutes.js";
 import { zoneRouter } from "./routes/zoneRoutes.js";
 import { locationRouter } from "./routes/locationRoutes.js";
+import { stockRouter } from "./routes/stockRoutes.js";
+import { movementRouter } from "./routes/stockMovementRoutes.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
@@ -21,6 +23,8 @@ app.use("/api/suppliers", supplierRouter);
 app.use("/api/warehouses", warehouseRouter);
 app.use("/api/zones", zoneRouter);
 app.use("/api/locations", locationRouter);
+app.use("/api/stocks", stockRouter);
+app.use("/api/movements", movementRouter);
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
