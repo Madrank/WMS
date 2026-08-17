@@ -17,6 +17,26 @@ export const authService = {
     const token = signToken({ userId: user.id, role: user.role });
     return { token, user: publicUser(user) };
   },
+
+  async createUser(data: { firstName: string; lastName: string; email: string; password: string; role: string }) {
+    const existing = await userRepository.findByEmail(data.email);
+    if (existing) {
+      throw { status: 409, code: "EMAIL_ALREADY_USED", message: "Un utilisateur avec cet email existe déjà." };
+    }
+
+    const passwordHash = await bcrypt.hash(data.password, 10);
+    return userRepository.create({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      passwordHash,
+      role: data.role,
+    });
+  },
+
+  async findById(id: number) {
+    return userRepository.findById(id);
+  },
 };
 
 function publicUser(user: { id: number; firstName: string; lastName: string; email: string; role: string }) {
