@@ -294,3 +294,5 @@ export type NewWarehouse = typeof warehouses.$inferInsert;
 export type Zone = typeof zones.$inferSelect;
 export type NewZone = typeof zones.$inferInsert;
 export type NewLocation = typeof locations.$inferInsert;
+export type NewStock = typeof stocks.$inferInsert;
+export type NewStockMovement = typeof stockMovements.$inferInsert;
