@@ -296,3 +296,5 @@ export type NewZone = typeof zones.$inferInsert;
 export type NewLocation = typeof locations.$inferInsert;
 export type NewStock = typeof stocks.$inferInsert;
 export type NewStockMovement = typeof stockMovements.$inferInsert;
+export type NewReceipt = typeof receipts.$inferInsert;
+export type NewReceiptItem = typeof receiptItems.$inferInsert;
