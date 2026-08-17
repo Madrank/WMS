@@ -276,4 +276,7 @@ export const inventoryItems = pgTable(
       sql`${table.countedQuantity} >= 0`,
     ),
   ],
-);
+); 
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
