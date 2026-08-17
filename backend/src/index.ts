@@ -10,6 +10,7 @@ import { zoneRouter } from "./routes/zoneRoutes.js";
 import { locationRouter } from "./routes/locationRoutes.js";
 import { stockRouter } from "./routes/stockRoutes.js";
 import { movementRouter } from "./routes/stockMovementRoutes.js";
+import { receiptRouter } from "./routes/receiptRoutes.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
@@ -25,6 +26,7 @@ app.use("/api/zones", zoneRouter);
 app.use("/api/locations", locationRouter);
 app.use("/api/stocks", stockRouter);
 app.use("/api/movements", movementRouter);
+app.use("/api/receipts", receiptRouter);
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
