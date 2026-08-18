@@ -1,6 +1,6 @@
 # Mini-WMS
 
-Système de gestion d'entrepôt (Warehouse Management System) fullstack.
+Système de gestion d'entrepôt (Warehouse Management System).
 Application web permettant de gérer les produits, les fournisseurs, les emplacements de stockage, les entrées/sorties de marchandises, les réceptions fournisseurs et les inventaires physiques — avec traçabilité complète des mouvements de stock.
 
 ## Technologies
@@ -22,15 +22,17 @@ mini-wms/
 │       ├── services/      → règles métier et transactions
 │       ├── repositories/  → accès SQL (via Drizzle ORM)
 │       ├── middlewares/   → auth (JWT) + autorisation (rôles) + erreurs
+|       ├── types/
 │       ├── db/            → schéma Drizzle, connexion, seed
 │       └── utils/         → JWT
-└── frontend/   → SPA React (Vite, Tailwind, TanStack Query, React Router)
+└── frontend/   → React (Vite, Tailwind, TanStack Query, React Router)
     └── src/
         ├── pages/         → pages (login, dashboard, articles, ...)
         ├── components/    → composants réutilisables (formulaires)
         ├── services/      → appels API (axios)
         ├── schemas/       → validation Zod des formulaires
         └── layouts/       → layout applicatif (sidebar, navigation)
+        ├── lib/           → axios
 ```
 
 **Principe de l'architecture en couches (backend)** : chaque requête traverse `route → contrôleur → service → repository → base de données`, dans cet ordre. Les services portent les **règles métier** et les **transactions** ; les repositories sont le seul niveau qui parle SQL.
@@ -68,7 +70,7 @@ mini-wms/
 
 - Hiérarchie à 3 niveaux : `warehouses → zones → locations` (clés étrangères)
 - `GET/POST /api/warehouses`, `GET/POST/PATCH/DELETE /api/zones`, etc.
-- **Unicité composite** : deux zones ne peuvent pas partager le même code dans le même entrepôt (`ZONE_CODE_ALREADY_USED`)
+- **Unicité** : deux zones ne peuvent pas partager le même code dans le même entrepôt (`ZONE_CODE_ALREADY_USED`)
 - **Code d'emplacement unique** globalement
 - **Suppression en cascade** gérée par la base : supprimer un entrepôt supprime ses zones et emplacements
 - Emplacements : désactivation logique (préservation de l'historique des stocks)
@@ -81,10 +83,10 @@ mini-wms/
   - **IN** : entrée (incrémente le stock, le crée s'il n'existe pas — *upsert*)
   - **OUT** : sortie (décrémente, refusée si stock insuffisant → `409 INSUFFICIENT_STOCK`)
   - **TRANSFER** : transfert entre deux emplacements (source ≠ destination, vérifie le stock source)
-  - **ADJUSTMENT** : ajustement (généré par les inventaires)
+  - **AJUSTEMENT** : ajustement (généré par les inventaires)
 - **Transactions atomiques** : le mouvement et la mise à jour du stock réussissent ensemble ou échouent ensemble (ROLLBACK)
-- **Incrément SQL atomique** : `UPDATE ... SET quantity = quantity + N` (sûr en environnement concurrent)
-- **Journal d'audit immuable** : `GET /api/movements` — chaque opération est tracée (qui, quoi, combien, où, quand, pourquoi)
+- **Incrément SQL** : `UPDATE ... SET quantity = quantity + N` (sûr en environnement concurrent)
+- **Journal d'audit** : `GET /api/movements` — chaque opération est tracée (qui, quoi, combien, où, quand, pourquoi)
 
 ### 6. Réceptions fournisseurs
 
@@ -99,7 +101,7 @@ mini-wms/
 
 - `GET/POST /api/inventories`, `GET /api/inventories/:id`, `POST /api/inventories/:id/validate`
 - **Comptage physique** : par emplacement, lignes (article, quantité théorique, quantité comptée)
-- **À la validation** : calcul de l'écart `compté − théorique`, génération d'un mouvement **ADJUSTMENT** et correction du stock (incrément si positif, décrément si négatif)
+- **À la validation** : calcul de l'écart `compté − théorique`, génération d'un mouvement **AJUSTEMENT** et correction du stock (incrément si positif, décrément si négatif)
 - Lignes sans écart → ignorées (pas de mouvement inutile)
 
 ### 8. Dashboard
@@ -125,7 +127,7 @@ cd backend
 cp .env.example .env   # renseigne DATABASE_URL et JWT_SECRET
 ```
 
-### 2. Migration et seed
+### 2. Migration / seed
 
 ```bash
 cd backend
@@ -161,7 +163,7 @@ Ouvrir http://localhost:5173
 
 | Script | Dossier | Description |
 |---|---|---|
-| `npm run dev` | backend | Serveur de dev (tsx watch, port 3001) |
+| `npm run dev` | backend | Serveur de dev ( port 3001) |
 | `npm run typecheck` | backend | Vérification TypeScript |
 | `npm run test` | backend | Tests unitaires Vitest |
 | `npm run build` | backend | Compilation (tsc) |
@@ -189,7 +191,7 @@ Ouvrir http://localhost:5173
 | POST | `/api/inventories/:id/validate` | Valider un inventaire | ADMIN/MANAGER |
 | GET | `/api/dashboard` | Statistiques | connecté |
 
-Toutes les réponses d'erreur suivent le format : `{ "error": { "code": "...", "message": "..." } }`.
+Toutes les réponses d'erreur suivent ce format : `{ "error": { "code": "...", "message": "..." } }`.
 
 ## Base de données
 
@@ -210,13 +212,13 @@ cd backend
 npm run test
 ```
 
-Tests unitaires (Vitest) sur les règles métier du service des mouvements :
+Tests unitaires (Vitest) sur les règles métier :
 
-- sortie refusée si stock insuffisant (`INSUFFICIENT_STOCK`)
+- sortie refusée si le stock et insuffisant (`INSUFFICIENT_STOCK`)
 - entrée IN → incrément du stock à la destination
 - transfert vers le même emplacement refusé
 
-Les repositories et la base sont **mockés** : les tests vérifient la logique du service sans toucher PostgreSQL.
+Les repositories et la base: les tests vérifient la logique du service sans toucher PostgreSQL.
 
 ## CI / CD
 
@@ -225,11 +227,11 @@ Workflow GitHub Actions (`.github/workflows/ci.yml`) exécuté sur chaque push v
 - **Job typecheck** : `npm run typecheck` (backend) + `tsc -b --noEmit` (frontend)
 - **Job test** : `npm run test` (vitest, backend)
 
-Une PR dont la CI échoue est **bloquée** jusqu'à correction.
+Une PR dont la CI échoue est **bloquée** jusqu'à sa correction.
 
 ## Workflow Git
 
-- Développement par module sur une branche dédiée : `feature/<nom>`
+- Développement par module sur une branche dédiée exemple : `feature/<nom>`
 - Chaque module est fusionné dans `main` via une **Pull Request**
 - `main` reste toujours dans un état stable et déployable
 
