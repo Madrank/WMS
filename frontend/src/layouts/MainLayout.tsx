@@ -7,6 +7,7 @@ const navItems = [
   { to: "/stocks", label: "Stocks" },
   { to: "/receipts", label: "Réceptions" },
   { to: "/inventories", label: "Inventaires" },
+  { to: "/movements", label: "Mouvements" },
 ];
 
 export default function MainLayout() {
