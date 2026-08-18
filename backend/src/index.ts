@@ -13,6 +13,7 @@ import { movementRouter } from "./routes/stockMovementRoutes.js";
 import { receiptRouter } from "./routes/receiptRoutes.js";
 import { inventoryRouter } from "./routes/inventoryRoutes.js";
 import { dashboardRouter } from "./routes/dashboardRoutes.js";
+import { userRouter } from "./routes/userRoutes.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
@@ -31,6 +32,7 @@ app.use("/api/movements", movementRouter);
 app.use("/api/receipts", receiptRouter);
 app.use("/api/inventories", inventoryRouter);
 app.use("/api/dashboard", dashboardRouter);
+app.use("/api/users", userRouter);
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });

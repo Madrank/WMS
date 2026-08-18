@@ -1,13 +1,14 @@
 import { Router } from "express";
 import { list, getById, create, update, remove } from "../controllers/warehouseController.js";
 import { requireAuth } from "../middlewares/auth.js";
+import { requireRole } from "../middlewares/requireRole.js";
 
 const router = Router();
 
 router.get("/", requireAuth, list);
-router.post("/", requireAuth, create);
+router.post("/", requireAuth, requireRole("ADMIN"), create);
 router.get("/:id", requireAuth, getById);
-router.patch("/:id", requireAuth, update);
-router.delete("/:id", requireAuth, remove);
+router.patch("/:id", requireAuth, requireRole("ADMIN"), update);
+router.delete("/:id", requireAuth, requireRole("ADMIN"), remove);
 
 export const warehouseRouter = router;

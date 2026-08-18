@@ -1,14 +1,21 @@
-import { and, asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { stocks, type NewStock } from "../db/schema.js";
+import { locations, stocks, type NewStock } from "../db/schema.js";
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export const stockRepository = {
-  async findAll({ articleId, locationId, page = 1, limit = 20 }: { articleId?: number; locationId?: number; page?: number; limit?: number }) {
+  async findAll({ articleId, locationId, zoneId, page = 1, limit = 20 }: { articleId?: number; locationId?: number; zoneId?: number; page?: number; limit?: number }) {
     const conditions = [];
     if (articleId) conditions.push(eq(stocks.articleId, articleId));
     if (locationId) conditions.push(eq(stocks.locationId, locationId));
+    if (zoneId) {
+      const zoneLocations = await db
+        .select({ id: locations.id })
+        .from(locations)
+        .where(eq(locations.zoneId, zoneId));
+      conditions.push(inArray(stocks.locationId, zoneLocations.map((l) => l.id)));
+    }
     const where = conditions.length ? and(...conditions) : undefined;
 
     const total = await db.$count(stocks, where);
