@@ -22,10 +22,17 @@ export const stockMovementService = {
     userId: number;
     reason?: string | null;
   }) {
+    if (!data.quantity || data.quantity <= 0) {
+      throw { status: 400, code: "QUANTITY_MUST_BE_POSITIVE", message: "La quantité doit être strictement positive." };
+    }
+
     return db.transaction(async (tx) => {
       const article = await articleRepository.findById(data.articleId);
       if (!article) {
         throw { status: 404, code: "ARTICLE_NOT_FOUND", message: "Article introuvable." };
+      }
+      if (!article.active) {
+        throw { status: 409, code: "ARTICLE_INACTIVE", message: "Ce produit est désactivé." };
       }
 
       if (data.type === "IN") {
@@ -36,11 +43,21 @@ export const stockMovementService = {
         if (!location) {
           throw { status: 404, code: "LOCATION_NOT_FOUND", message: "Emplacement introuvable." };
         }
+        if (!location.active) {
+          throw { status: 409, code: "LOCATION_INACTIVE", message: "Cet emplacement est désactivé." };
+        }
       }
 
       if (data.type === "OUT") {
         if (!data.sourceLocationId) {
           throw { status: 400, code: "INVALID_MOVEMENT", message: "Une sortie nécessite un emplacement source." };
+        }
+        const location = await locationRepository.findById(data.sourceLocationId);
+        if (!location) {
+          throw { status: 404, code: "LOCATION_NOT_FOUND", message: "Emplacement introuvable." };
+        }
+        if (!location.active) {
+          throw { status: 409, code: "LOCATION_INACTIVE", message: "Cet emplacement est désactivé." };
         }
         const existing = await stockRepository.findByArticleAndLocation(data.articleId, data.sourceLocationId);
         if (!existing || existing.quantity < data.quantity) {
@@ -54,6 +71,20 @@ export const stockMovementService = {
         }
         if (data.sourceLocationId === data.destinationLocationId) {
           throw { status: 400, code: "INVALID_MOVEMENT", message: "Les emplacements source et destination doivent être différents." };
+        }
+        const source = await locationRepository.findById(data.sourceLocationId);
+        if (!source) {
+          throw { status: 404, code: "LOCATION_NOT_FOUND", message: "Emplacement source introuvable." };
+        }
+        if (!source.active) {
+          throw { status: 409, code: "LOCATION_INACTIVE", message: "Cet emplacement est désactivé." };
+        }
+        const destination = await locationRepository.findById(data.destinationLocationId);
+        if (!destination) {
+          throw { status: 404, code: "LOCATION_NOT_FOUND", message: "Emplacement de destination introuvable." };
+        }
+        if (!destination.active) {
+          throw { status: 409, code: "LOCATION_INACTIVE", message: "Cet emplacement est désactivé." };
         }
         const existing = await stockRepository.findByArticleAndLocation(data.articleId, data.sourceLocationId);
         if (!existing || existing.quantity < data.quantity) {
