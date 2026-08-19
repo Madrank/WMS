@@ -2,11 +2,12 @@ import type { Request, Response } from "express";
 import { stockRepository } from "../repositories/stockRepository.js";
 
 export async function list(req: Request, res: Response) {
-  const { articleId, locationId, page = 1, limit = 20 } = req.query;
+  const { articleId, locationId, zoneId, page = 1, limit = 20 } = req.query;
 
   const result = await stockRepository.findAll({
     articleId: articleId ? Number(articleId) : undefined,
     locationId: locationId ? Number(locationId) : undefined,
+    zoneId: zoneId ? Number(zoneId) : undefined,
     page: Number(page),
     limit: Number(limit),
   });
@@ -28,4 +29,9 @@ export async function getById(req: Request, res: Response) {
     throw { status: 404, code: "STOCK_NOT_FOUND", message: "Stock introuvable." };
   }
   res.json(stock);
+}
+
+export async function getByArticle(req: Request, res: Response) {
+  const result = await stockRepository.findAll({ articleId: Number(req.params.articleId) });
+  res.json(result.rows);
 }

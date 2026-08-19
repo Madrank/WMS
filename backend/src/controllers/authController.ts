@@ -7,6 +7,10 @@ export async function login(req: Request, res: Response) {
   res.json(result);
 }
 
+export async function logout(_req: Request, res: Response) {
+  res.json({ message: "Déconnecté." });
+}
+
 export async function me(req: Request, res: Response) {
   const auth = (req as Request & { user?: { userId: number } }).user;
   const user = await authService.findById(auth?.userId ?? 0);
