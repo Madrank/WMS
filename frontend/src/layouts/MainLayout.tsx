@@ -1,9 +1,11 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { getCurrentUser, logout } from "../services/authService.js";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/articles", label: "Articles" },
   { to: "/suppliers", label: "Fournisseurs" },
+  { to: "/warehouse", label: "Entrepôt" },
   { to: "/stocks", label: "Stocks" },
   { to: "/receipts", label: "Réceptions" },
   { to: "/inventories", label: "Inventaires" },
@@ -11,8 +13,11 @@ const navItems = [
 ];
 
 export default function MainLayout() {
-  function handleLogout() {
-    localStorage.removeItem("token");
+  const user = getCurrentUser();
+  const isAdmin = user?.role === "ADMIN";
+
+  async function handleLogout() {
+    await logout();
     window.location.href = "/login";
   }
 
@@ -36,6 +41,18 @@ export default function MainLayout() {
               {item.label}
             </NavLink>
           ))}
+          {isAdmin && (
+            <NavLink
+              to="/users"
+              className={({ isActive }) =>
+                `block px-4 py-2 rounded mb-1 ${
+                  isActive ? "bg-blue-600" : "hover:bg-gray-800"
+                }`
+              }
+            >
+              Utilisateurs
+            </NavLink>
+          )}
         </nav>
         <button
           onClick={handleLogout}
