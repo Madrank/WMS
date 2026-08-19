@@ -7,6 +7,7 @@ interface DashboardData {
     activeSuppliers: number;
     locations: number;
     totalStockUnits: number;
+    pendingReceipts: number;
   };
   lowStock: { reference: string; name: string; minimumStock: number; totalQuantity: number }[];
   stockByLocation: { locationCode: string; zoneName: string; totalQuantity: number }[];
@@ -25,11 +26,12 @@ export default function DashboardPage() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-5 gap-4 mb-8">
         <StatCard label="Articles actifs" value={data.stats.activeArticles} />
         <StatCard label="Fournisseurs" value={data.stats.activeSuppliers} />
         <StatCard label="Emplacements" value={data.stats.locations} />
         <StatCard label="Unités en stock" value={data.stats.totalStockUnits} />
+        <StatCard label="Réceptions en attente" value={data.stats.pendingReceipts} />
       </div>
 
       <h2 className="text-xl font-semibold mb-3">Alertes de stock bas</h2>

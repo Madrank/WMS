@@ -23,14 +23,6 @@ export async function list(req: Request, res: Response) {
   });
 }
 
-export async function getById(req: Request, res: Response) {
-  const stock = await stockRepository.findById(Number(req.params.id));
-  if (!stock) {
-    throw { status: 404, code: "STOCK_NOT_FOUND", message: "Stock introuvable." };
-  }
-  res.json(stock);
-}
-
 export async function getByArticle(req: Request, res: Response) {
   const result = await stockRepository.findAll({ articleId: Number(req.params.articleId) });
   res.json(result.rows);
