@@ -1,6 +1,6 @@
 import { count, eq, ilike, lt, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { articles, suppliers, locations, stocks, stockMovements, zones } from "../db/schema.js";
+import { articles, suppliers, locations, receipts, stocks, stockMovements, zones } from "../db/schema.js";
 
 export const dashboardRepository = {
   async getStats() {
@@ -8,12 +8,17 @@ export const dashboardRepository = {
     const [supplierCount] = await db.select({ value: count() }).from(suppliers).where(eq(suppliers.active, true));
     const [locationCount] = await db.select({ value: count() }).from(locations);
     const [stockTotal] = await db.select({ value: sql`COALESCE(SUM(${stocks.quantity}), 0)` }).from(stocks);
+    const [pendingReceipts] = await db
+      .select({ value: count() })
+      .from(receipts)
+      .where(eq(receipts.status, "DRAFT"));
 
     return {
       activeArticles: Number(articleCount?.value ?? 0),
       activeSuppliers: Number(supplierCount?.value ?? 0),
       locations: Number(locationCount?.value ?? 0),
       totalStockUnits: Number(stockTotal?.value ?? 0),
+      pendingReceipts: Number(pendingReceipts?.value ?? 0),
     };
   },
 

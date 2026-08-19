@@ -30,10 +30,6 @@ export const stockRepository = {
     return { rows, total };
   },
 
-  async findById(id: number) {
-    return db.query.stocks.findFirst({ where: eq(stocks.id, id) });
-  },
-
   async findByArticleAndLocation(articleId: number, locationId: number) {
     return db.query.stocks.findFirst({
       where: and(eq(stocks.articleId, articleId), eq(stocks.locationId, locationId)),
