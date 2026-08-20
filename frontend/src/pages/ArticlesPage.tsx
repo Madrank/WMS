@@ -1,27 +1,18 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { listArticles, createArticle, deactivateArticle, type Article } from "../services/articleService.js";
-import ArticleForm from "../components/ArticleForm.js";
-import type { ArticleFormValues } from "../schemas/articleSchema.js";
+import { listArticles, deactivateArticle, type Article } from "../services/articleService.js";
+import { getCurrentUser } from "../services/authService.js";
 
 export default function ArticlesPage() {
   const [search, setSearch] = useState("");
-  const [showForm, setShowForm] = useState(false);
   const queryClient = useQueryClient();
+  const user = getCurrentUser();
+  const canManage = user?.role === "ADMIN" || user?.role === "MANAGER";
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["articles", search],
     queryFn: () => listArticles({ search, page: 1, limit: 50 }),
-  });
-
-  const createMutation = useMutation({
-    mutationFn: createArticle,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["articles"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      setShowForm(false);
-    
-    },
   });
 
   const deactivateMutation = useMutation({
@@ -35,10 +26,6 @@ export default function ArticlesPage() {
   if (isLoading) return <p>Chargement...</p>;
   if (isError || !data) return <p className="text-red-600">Erreur de chargement.</p>;
 
-  async function handleCreate(values: ArticleFormValues) {
-    await createMutation.mutateAsync(values);
-  }
-
   async function handleDeactivate(article: Article) {
     if (confirm(`Désactiver l'article ${article.reference} ?`)) {
       await deactivateMutation.mutateAsync(article.id);
@@ -49,23 +36,15 @@ export default function ArticlesPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Articles</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          {showForm ? "Fermer" : "+ Nouvel article"}
-        </button>
+        {canManage && (
+          <Link
+            to="/articles/new"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            + Nouvel article
+          </Link>
+        )}
       </div>
-
-      {showForm && (
-        <div className="bg-white rounded shadow p-6 mb-6 max-w-xl">
-          <h2 className="text-lg font-semibold mb-4">Nouvel article</h2>
-          <ArticleForm onSubmit={handleCreate} submitting={createMutation.isPending} />
-          {createMutation.isError && (
-            <p className="text-red-600 text-sm mt-2">Erreur lors de la création.</p>
-          )}
-        </div>
-      )}
 
       <div className="mb-4">
         <input
@@ -91,7 +70,11 @@ export default function ArticlesPage() {
         <tbody>
           {data.data.map((article) => (
             <tr key={article.id} className="border-b">
-              <td className="p-3">{article.reference}</td>
+              <td className="p-3">
+                <Link to={`/articles/${article.id}`} className="text-blue-600 hover:underline">
+                  {article.reference}
+                </Link>
+              </td>
               <td className="p-3">{article.name}</td>
               <td className="p-3">{article.unit}</td>
               <td className="p-3">{article.minimumStock}</td>
@@ -107,7 +90,7 @@ export default function ArticlesPage() {
                 )}
               </td>
               <td className="p-3">
-                {article.active && (
+                {canManage && article.active && (
                   <button
                     onClick={() => handleDeactivate(article)}
                     className="text-red-600 hover:underline text-sm"
