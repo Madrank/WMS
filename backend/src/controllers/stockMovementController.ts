@@ -2,13 +2,14 @@ import type { Request, Response } from "express";
 import { stockMovementService } from "../services/stockMovementService.js";
 
 export async function list(req: Request, res: Response) {
-  const { articleId, locationId, type, userId, from, to, page = 1, limit = 20 } = req.query;
+  const { articleId, locationId, type, userId, search, from, to, page = 1, limit = 20 } = req.query;
 
   const result = await stockMovementService.list({
     articleId: articleId ? Number(articleId) : undefined,
     locationId: locationId ? Number(locationId) : undefined,
     type: typeof type === "string" ? type : undefined,
     userId: userId ? Number(userId) : undefined,
+    search: typeof search === "string" ? search : undefined,
     from: typeof from === "string" && from ? new Date(from) : undefined,
     to: typeof to === "string" && to ? new Date(to) : undefined,
     page: Number(page),

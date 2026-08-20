@@ -5,8 +5,8 @@ import { locationRepository } from "../repositories/locationRepository.js";
 import { db } from "../db/index.js";
 
 export const stockMovementService = {
-  async list({ articleId, locationId, type, userId, from, to, page = 1, limit = 20 }: { articleId?: number; locationId?: number; type?: string; userId?: number; from?: Date; to?: Date; page?: number; limit?: number }) {
-    const { rows, total } = await stockMovementRepository.findAll({ articleId, locationId, type, userId, from, to, page, limit });
+  async list({ articleId, locationId, type, userId, search, from, to, page = 1, limit = 20 }: { articleId?: number; locationId?: number; type?: string; userId?: number; search?: string; from?: Date; to?: Date; page?: number; limit?: number }) {
+    const { rows, total } = await stockMovementRepository.findAll({ articleId, locationId, type, userId, search, from, to, page, limit });
     return {
       data: rows,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
