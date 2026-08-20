@@ -1,15 +1,16 @@
-import { and, desc, eq, gte, lte, or } from "drizzle-orm";
+import { and, desc, eq, gte, ilike, lte, or } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { stockMovements, type NewStockMovement } from "../db/schema.js";
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export const stockMovementRepository = {
-  async findAll({ articleId, locationId, type, userId, from, to, page = 1, limit = 20 }: { articleId?: number; locationId?: number; type?: string; userId?: number; from?: Date; to?: Date; page?: number; limit?: number }) {
+  async findAll({ articleId, locationId, type, userId, search, from, to, page = 1, limit = 20 }: { articleId?: number; locationId?: number; type?: string; userId?: number; search?: string; from?: Date; to?: Date; page?: number; limit?: number }) {
     const conditions = [];
     if (articleId) conditions.push(eq(stockMovements.articleId, articleId));
     if (type) conditions.push(eq(stockMovements.type, type));
     if (userId) conditions.push(eq(stockMovements.userId, userId));
+    if (search) conditions.push(ilike(stockMovements.reason, `%${search}%`));
     if (from) conditions.push(gte(stockMovements.createdAt, from));
     if (to) conditions.push(lte(stockMovements.createdAt, to));
 

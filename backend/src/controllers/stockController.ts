@@ -2,12 +2,13 @@ import type { Request, Response } from "express";
 import { stockRepository } from "../repositories/stockRepository.js";
 
 export async function list(req: Request, res: Response) {
-  const { articleId, locationId, zoneId, page = 1, limit = 20 } = req.query;
+  const { articleId, locationId, zoneId, search, page = 1, limit = 20 } = req.query;
 
   const result = await stockRepository.findAll({
     articleId: articleId ? Number(articleId) : undefined,
     locationId: locationId ? Number(locationId) : undefined,
     zoneId: zoneId ? Number(zoneId) : undefined,
+    search: typeof search === "string" ? search : undefined,
     page: Number(page),
     limit: Number(limit),
   });

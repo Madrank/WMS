@@ -23,17 +23,30 @@ interface Location {
   active: boolean;
 }
 
+interface Zone {
+  id: number;
+  code: string;
+  name: string;
+}
+
 export default function StocksPage() {
   const [type, setType] = useState("IN");
   const [articleId, setArticleId] = useState("");
   const [locationId, setLocationId] = useState("");
   const [quantity, setQuantity] = useState("");
+  const [search, setSearch] = useState("");
+  const [zoneId, setZoneId] = useState("");
   const [error, setError] = useState("");
   const queryClient = useQueryClient();
 
   const stocksQuery = useQuery({
-    queryKey: ["stocks"],
-    queryFn: async () => (await api.get("/stocks", { params: { limit: 200 } })).data as { data: StockRow[] },
+    queryKey: ["stocks", search, zoneId],
+    queryFn: async () =>
+      (
+        await api.get("/stocks", {
+          params: { limit: 200, search: search || undefined, zoneId: zoneId || undefined },
+        })
+      ).data as { data: StockRow[] },
   });
 
   const articlesQuery = useQuery({
@@ -44,6 +57,11 @@ export default function StocksPage() {
   const locationsQuery = useQuery({
     queryKey: ["locations-select"],
     queryFn: async () => (await api.get("/locations", { params: { limit: 200 } })).data as { data: Location[] },
+  });
+
+  const zonesQuery = useQuery({
+    queryKey: ["zones-select"],
+    queryFn: async () => (await api.get("/zones", { params: { limit: 200 } })).data as { data: Zone[] },
   });
 
   const movementMutation = useMutation({
@@ -75,13 +93,14 @@ export default function StocksPage() {
     },
   });
 
-  if (stocksQuery.isLoading || articlesQuery.isLoading || locationsQuery.isLoading) {
+  if (stocksQuery.isLoading || articlesQuery.isLoading || locationsQuery.isLoading || zonesQuery.isLoading) {
     return <p>Chargement...</p>;
   }
 
   const stocks = stocksQuery.data?.data ?? [];
   const articles = articlesQuery.data?.data ?? [];
   const locations = locationsQuery.data?.data ?? [];
+  const zones = zonesQuery.data?.data ?? [];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -166,6 +185,28 @@ export default function StocksPage() {
             {movementMutation.isPending ? "Envoi..." : "Enregistrer le mouvement"}
           </button>
         </form>
+      </div>
+
+      <div className="mb-4 flex gap-3">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Rechercher un produit..."
+          className="w-full max-w-sm border rounded px-3 py-2"
+        />
+        <select
+          value={zoneId}
+          onChange={(e) => setZoneId(e.target.value)}
+          className="border rounded px-3 py-2"
+        >
+          <option value="">Toutes les zones</option>
+          {zones.map((zone) => (
+            <option key={zone.id} value={zone.id}>
+              {zone.code} — {zone.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <table className="w-full bg-white rounded shadow">

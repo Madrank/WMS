@@ -28,7 +28,7 @@ export default function SupplierForm({ onSubmit, initial, submitting }: Supplier
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SupplierFormInput, any, SupplierFormValues>({
+  } = useForm<SupplierFormInput, unknown, SupplierFormValues>({
     resolver: zodResolver(supplierSchema),
     defaultValues: { ...initial },
   });

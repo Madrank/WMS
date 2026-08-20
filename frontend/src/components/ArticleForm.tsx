@@ -13,7 +13,7 @@ export default function ArticleForm({ onSubmit, initial, submitting }: ArticleFo
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ArticleFormInput, any, ArticleFormValues>({
+  } = useForm<ArticleFormInput, unknown, ArticleFormValues>({
     resolver: zodResolver(articleSchema),
     defaultValues: { unit: "unité", minimumStock: 0, ...initial },
   });

@@ -6,13 +6,20 @@ import { getCurrentUser } from "../services/authService.js";
 
 export default function ArticlesPage() {
   const [search, setSearch] = useState("");
+  const [active, setActive] = useState("");
   const queryClient = useQueryClient();
   const user = getCurrentUser();
   const canManage = user?.role === "ADMIN" || user?.role === "MANAGER";
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["articles", search],
-    queryFn: () => listArticles({ search, page: 1, limit: 50 }),
+    queryKey: ["articles", search, active],
+    queryFn: () =>
+      listArticles({
+        search,
+        active: active === "" ? undefined : active === "true",
+        page: 1,
+        limit: 50,
+      }),
   });
 
   const deactivateMutation = useMutation({
@@ -46,7 +53,7 @@ export default function ArticlesPage() {
         )}
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 flex gap-3">
         <input
           type="text"
           value={search}
@@ -54,6 +61,15 @@ export default function ArticlesPage() {
           placeholder="Rechercher un article..."
           className="w-full max-w-sm border rounded px-3 py-2"
         />
+        <select
+          value={active}
+          onChange={(e) => setActive(e.target.value)}
+          className="border rounded px-3 py-2"
+        >
+          <option value="">Tous</option>
+          <option value="true">Actifs</option>
+          <option value="false">Inactifs</option>
+        </select>
       </div>
 
       <table className="w-full bg-white rounded shadow">
