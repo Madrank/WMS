@@ -34,6 +34,16 @@ export async function createSupplier(input: SupplierInput) {
   return data as Supplier;
 }
 
+export async function getSupplier(id: number) {
+  const { data } = await api.get(`/suppliers/${id}`);
+  return data as Supplier;
+}
+
+export async function updateSupplier(id: number, input: Partial<SupplierInput>) {
+  const { data } = await api.patch(`/suppliers/${id}`, input);
+  return data as Supplier;
+}
+
 export async function deactivateSupplier(id: number) {
   const { data } = await api.delete(`/suppliers/${id}`, { data: { active: false } });
   return data as Supplier;
