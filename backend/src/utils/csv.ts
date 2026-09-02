@@ -13,5 +13,6 @@ export function toCsv(rows: Record<string, unknown>[]): string {
   const lines = rows.map((row) =>
     headers.map((h) => escapeValue(row[h])).join(","),
   );
-  return [headers.join(","), ...lines].join("\r\n");
+  // \uFEFF = BOM UTF-8 : force Excel / Postman à lire le fichier en UTF-8 (accents corrects)
+  return `\uFEFF${[headers.join(","), ...lines].join("\r\n")}`;
 }
