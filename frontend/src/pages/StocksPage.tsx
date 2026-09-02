@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api.js";
+import { downloadCsv } from "../utils/exportFile.js";
 
 interface StockRow {
   id: number;
@@ -37,6 +38,7 @@ export default function StocksPage() {
   const [search, setSearch] = useState("");
   const [zoneId, setZoneId] = useState("");
   const [error, setError] = useState("");
+  const [exporting, setExporting] = useState(false);
   const queryClient = useQueryClient();
 
   const stocksQuery = useQuery({
@@ -109,7 +111,23 @@ export default function StocksPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Stocks</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Stocks</h1>
+        <button
+          onClick={async () => {
+            try {
+              setExporting(true);
+              await downloadCsv("/stocks/export", "stock.csv");
+            } finally {
+              setExporting(false);
+            }
+          }}
+          disabled={exporting}
+          className="border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-50 disabled:opacity-50"
+        >
+          {exporting ? "Export..." : "Exporter CSV"}
+        </button>
+      </div>
 
       <div className="bg-white rounded shadow p-6 mb-6 max-w-xl space-y-4">
         <h2 className="text-lg font-semibold">Nouveau mouvement</h2>

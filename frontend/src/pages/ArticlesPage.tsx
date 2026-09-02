@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listArticles, deactivateArticle, type Article } from "../services/articleService.js";
 import { getCurrentUser } from "../services/authService.js";
+import { downloadCsv } from "../utils/exportFile.js";
 
 export default function ArticlesPage() {
   const [search, setSearch] = useState("");
   const [active, setActive] = useState("");
+  const [exporting, setExporting] = useState(false);
   const queryClient = useQueryClient();
   const user = getCurrentUser();
   const canManage = user?.role === "ADMIN" || user?.role === "MANAGER";
@@ -39,18 +41,36 @@ export default function ArticlesPage() {
     }
   }
 
+  async function handleExport() {
+    try {
+      setExporting(true);
+      await downloadCsv("/articles/export", "articles.csv");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Articles</h1>
-        {canManage && (
-          <Link
-            to="/articles/new"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        <div className="flex gap-3">
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-50 disabled:opacity-50"
           >
-            + Nouvel article
-          </Link>
-        )}
+            {exporting ? "Export..." : "Exporter CSV"}
+          </button>
+          {canManage && (
+            <Link
+              to="/articles/new"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              + Nouvel article
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="mb-4 flex gap-3">

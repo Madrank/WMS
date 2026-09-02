@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { stockMovementService } from "../services/stockMovementService.js";
+import { toCsv } from "../utils/csv.js";
 
 export async function list(req: Request, res: Response) {
   const { articleId, locationId, type, userId, search, from, to, page = 1, limit = 20 } = req.query;
@@ -30,4 +31,28 @@ export async function create(req: Request, res: Response) {
     reason: req.body.reason ?? null,
   });
   res.status(201).json(movement);
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  IN: "Entrée",
+  OUT: "Sortie",
+  TRANSFER: "Transfert",
+  ADJUSTMENT: "Ajustement",
+};
+
+export async function exportCsv(req: Request, res: Response) {
+  const result = await stockMovementService.list({ page: 1, limit: 10000 });
+  const rows = result.data.map((m) => ({
+    date: new Date(m.createdAt).toISOString(),
+    type: TYPE_LABELS[m.type] ?? m.type,
+    articleId: m.articleId,
+    quantity: m.quantity,
+    sourceLocationId: m.sourceLocationId ?? "",
+    destinationLocationId: m.destinationLocationId ?? "",
+    userId: m.userId,
+    reason: m.reason ?? "",
+  }));
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", 'attachment; filename="mouvements.csv"');
+  res.send(toCsv(rows));
 }

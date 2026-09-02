@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api.js";
 import { listUsers } from "../services/userService.js";
 import { getCurrentUser } from "../services/authService.js";
+import { downloadCsv } from "../utils/exportFile.js";
 
 interface Movement {
   id: number;
@@ -52,6 +53,7 @@ export default function MovementsPage() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [page, setPage] = useState(1);
+  const [exporting, setExporting] = useState(false);
 
   const user = getCurrentUser();
   const isAdmin = user?.role === "ADMIN";
@@ -104,7 +106,23 @@ export default function MovementsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Mouvements</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Mouvements</h1>
+        <button
+          onClick={async () => {
+            try {
+              setExporting(true);
+              await downloadCsv("/movements/export", "mouvements.csv");
+            } finally {
+              setExporting(false);
+            }
+          }}
+          disabled={exporting}
+          className="border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-50 disabled:opacity-50"
+        >
+          {exporting ? "Export..." : "Exporter CSV"}
+        </button>
+      </div>
 
       <div className="bg-white rounded shadow p-4 mb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
         <input
