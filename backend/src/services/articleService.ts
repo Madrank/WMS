@@ -1,8 +1,8 @@
 import { articleRepository } from "../repositories/articleRepository.js";
 
 export const articleService = {
-  async list({ search, active, page = 1, limit = 20 }: { search?: string; active?: boolean; page?: number; limit?: number }) {
-    const { rows, total } = await articleRepository.findAll({ search, active, page, limit });
+  async list({ search, active, barcode, page = 1, limit = 20 }: { search?: string; active?: boolean; barcode?: string; page?: number; limit?: number }) {
+    const { rows, total } = await articleRepository.findAll({ search, active, barcode, page, limit });
     return {
       data: rows,
       pagination: {
