@@ -21,6 +21,7 @@ import WarehousePage from "./pages/WarehousePage.js";
 import ZonesPage from "./pages/ZonesPage.js";
 import LocationsPage from "./pages/LocationsPage.js";
 import UsersPage from "./pages/UsersPage.js";
+import AuditLogsPage from "./pages/AuditLogsPage.js";
 
 export default function App() {
   return (
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="inventories/:id" element={<InventoryDetailPage />} />
         <Route path="movements" element={<MovementsPage />} />
         <Route path="users" element={<UsersPage />} />
+        <Route path="audit" element={<AuditLogsPage />} />
         <Route index element={<Navigate to="/dashboard" replace />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

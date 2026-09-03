@@ -68,6 +68,18 @@ export default function MainLayout() {
               Utilisateurs
             </NavLink>
           )}
+          {isAdmin && (
+            <NavLink
+              to="/audit"
+              className={({ isActive }) =>
+                `block px-4 py-2 rounded mb-1 ${
+                  isActive ? "bg-blue-600" : "hover:bg-gray-800"
+                }`
+              }
+            >
+              Journal d'audit
+            </NavLink>
+          )}
           {lowStockCount > 0 && (
             <NavLink
               to="/dashboard"

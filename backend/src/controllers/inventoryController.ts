@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { inventoryService } from "../services/inventoryService.js";
+import { auditService } from "../services/auditService.js";
 
 export async function list(req: Request, res: Response) {
   const { search, status, page = 1, limit = 20 } = req.query;
@@ -26,10 +27,24 @@ export async function create(req: Request, res: Response) {
     createdBy: req.user!.userId,
     items: req.body.items,
   });
+  await auditService.log({
+    userId: req.user!.userId,
+    action: "CREATE",
+    entityType: "inventory",
+    entityId: inventory.id,
+    description: `Création de l'inventaire ${inventory.reference}`,
+  });
   res.status(201).json(inventory);
 }
 
 export async function validate(req: Request, res: Response) {
   const inventory = await inventoryService.validate(Number(req.params.id), req.user!.userId);
+  await auditService.log({
+    userId: req.user!.userId,
+    action: "VALIDATE",
+    entityType: "inventory",
+    entityId: inventory.id,
+    description: `Validation de l'inventaire ${inventory.reference}`,
+  });
   res.json(inventory);
 }
