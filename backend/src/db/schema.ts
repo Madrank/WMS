@@ -278,6 +278,16 @@ export const inventoryItems = pgTable(
   ],
 ); 
 
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
+  action: varchar("action", { length: 50 }).notNull(),
+  entityType: varchar("entity_type", { length: 50 }).notNull(),
+  entityId: integer("entity_id"),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Article = typeof articles.$inferSelect;
@@ -300,3 +310,5 @@ export type NewReceipt = typeof receipts.$inferInsert;
 export type NewReceiptItem = typeof receiptItems.$inferInsert;
 export type NewInventory = typeof inventories.$inferInsert;
 export type NewInventoryItem = typeof inventoryItems.$inferInsert;
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type NewAuditLog = typeof auditLogs.$inferInsert;
