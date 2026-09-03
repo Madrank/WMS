@@ -8,17 +8,19 @@ import { downloadCsv } from "../utils/exportFile.js";
 export default function ArticlesPage() {
   const [search, setSearch] = useState("");
   const [active, setActive] = useState("");
+  const [barcode, setBarcode] = useState("");
   const [exporting, setExporting] = useState(false);
   const queryClient = useQueryClient();
   const user = getCurrentUser();
   const canManage = user?.role === "ADMIN" || user?.role === "MANAGER";
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["articles", search, active],
+    queryKey: ["articles", search, active, barcode],
     queryFn: () =>
       listArticles({
         search,
         active: active === "" ? undefined : active === "true",
+        barcode: barcode || undefined,
         page: 1,
         limit: 50,
       }),
@@ -79,6 +81,13 @@ export default function ArticlesPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Rechercher un article..."
+          className="w-full max-w-sm border rounded px-3 py-2"
+        />
+        <input
+          type="text"
+          value={barcode}
+          onChange={(e) => setBarcode(e.target.value)}
+          placeholder="Rechercher par code-barres..."
           className="w-full max-w-sm border rounded px-3 py-2"
         />
         <select

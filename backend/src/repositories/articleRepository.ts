@@ -6,11 +6,13 @@ export const articleRepository = {
   async findAll({
     search,
     active,
+    barcode,
     page,
     limit,
   }: {
     search?: string;
     active?: boolean;
+    barcode?: string;
     page: number;
     limit: number;
   }) {
@@ -23,6 +25,10 @@ export const articleRepository = {
           ilike(articles.reference, `%${search}%`),
         ),
       );
+    }
+
+    if (barcode) {
+      conditions.push(ilike(articles.barcode, `%${barcode}%`));
     }
 
     if (active !== undefined) {

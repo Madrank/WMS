@@ -3,13 +3,14 @@ import { articleService } from "../services/articleService.js";
 import { toCsv } from "../utils/csv.js";
 
 export async function list(req: Request, res: Response) {
-  const { search, active, page = 1, limit = 20 } = req.query;
+  const { search, active, barcode, page = 1, limit = 20 } = req.query;
 
   const activeFilter = active === "true" ? true : active === "false" ? false : undefined;
 
   const result = await articleService.list({
     search: typeof search === "string" ? search : undefined,
     active: activeFilter,
+    barcode: typeof barcode === "string" ? barcode : undefined,
     page: Number(page),
     limit: Number(limit),
   });

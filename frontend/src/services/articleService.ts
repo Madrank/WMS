@@ -22,7 +22,7 @@ export interface ArticleInput {
   minimumStock?: number;
 }
 
-export async function listArticles(params: { search?: string; active?: boolean; page?: number; limit?: number }) {
+export async function listArticles(params: { search?: string; active?: boolean; barcode?: string; page?: number; limit?: number }) {
   const { data } = await api.get("/articles", { params });
   return data as { data: Article[]; pagination: { page: number; limit: number; total: number; totalPages: number } };
 }
