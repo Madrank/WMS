@@ -13,6 +13,7 @@ const navItems = [
   { to: "/receipts", label: "Réceptions" },
   { to: "/inventories", label: "Inventaires" },
   { to: "/movements", label: "Mouvements" },
+  { to: "/orders", label: "Commandes" },
 ];
 
 interface DashboardSummary {
