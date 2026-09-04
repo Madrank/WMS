@@ -15,6 +15,7 @@ import { inventoryRouter } from "./routes/inventoryRoutes.js";
 import { dashboardRouter } from "./routes/dashboardRoutes.js";
 import { userRouter } from "./routes/userRoutes.js";
 import { auditRouter } from "./routes/auditRoutes.js";
+import { orderRouter } from "./routes/orderRoutes.js";
 import { initWebSocket } from "./websocket.js";
 
 const app = express();
@@ -36,6 +37,7 @@ app.use("/api/inventories", inventoryRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/users", userRouter);
 app.use("/api/audit-logs", auditRouter);
+app.use("/api/orders", orderRouter);
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
