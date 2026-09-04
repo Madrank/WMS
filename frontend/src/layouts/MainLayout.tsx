@@ -2,6 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api.js";
 import { getCurrentUser, logout } from "../services/authService.js";
+import { useStockWebSocket } from "../hooks/useStockWebSocket.js";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard" },
@@ -21,6 +22,8 @@ interface DashboardSummary {
 export default function MainLayout() {
   const user = getCurrentUser();
   const isAdmin = user?.role === "ADMIN";
+
+  useStockWebSocket();
 
   const dashboardQuery = useQuery({
     queryKey: ["dashboard"],

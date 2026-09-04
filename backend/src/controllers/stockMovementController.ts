@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { stockMovementService } from "../services/stockMovementService.js";
 import { toCsv } from "../utils/csv.js";
+import { broadcast } from "../websocket.js";
 
 export async function list(req: Request, res: Response) {
   const { articleId, locationId, type, userId, search, from, to, page = 1, limit = 20 } = req.query;
@@ -30,6 +31,7 @@ export async function create(req: Request, res: Response) {
     userId: req.user!.userId,
     reason: req.body.reason ?? null,
   });
+  broadcast("STOCK_UPDATED", { movementId: movement.id });
   res.status(201).json(movement);
 }
 

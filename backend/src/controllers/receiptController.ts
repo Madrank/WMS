@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { receiptService } from "../services/receiptService.js";
 import { auditService } from "../services/auditService.js";
+import { broadcast } from "../websocket.js";
 
 export async function list(req: Request, res: Response) {
   const { search, status, page = 1, limit = 20 } = req.query;
@@ -46,5 +47,6 @@ export async function validate(req: Request, res: Response) {
     entityId: receipt.id,
     description: `Validation de la réception ${receipt.reference}`,
   });
+  broadcast("STOCK_UPDATED", { receiptId: receipt.id });
   res.json(receipt);
 }
