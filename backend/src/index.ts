@@ -15,6 +15,7 @@ import { inventoryRouter } from "./routes/inventoryRoutes.js";
 import { dashboardRouter } from "./routes/dashboardRoutes.js";
 import { userRouter } from "./routes/userRoutes.js";
 import { auditRouter } from "./routes/auditRoutes.js";
+import { initWebSocket } from "./websocket.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
@@ -42,6 +43,7 @@ app.get("/api/health", (_req, res) => {
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`API démarrée sur http://localhost:${port}`);
 });
+initWebSocket(server);
