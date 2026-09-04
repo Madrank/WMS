@@ -44,6 +44,15 @@ export const stockRepository = {
     return { rows: rows.map((row) => row.stocks), total: Number(totalRow?.value ?? 0) };
   },
 
+  async sumByArticle(articleId: number, tx?: Transaction) {
+    const client = tx ?? db;
+    const [row] = await client
+      .select({ value: sql<number>`coalesce(sum(${stocks.quantity}), 0)` })
+      .from(stocks)
+      .where(eq(stocks.articleId, articleId));
+    return Number(row?.value ?? 0);
+  },
+
   async findByArticleAndLocation(articleId: number, locationId: number) {
     return db.query.stocks.findFirst({
       where: and(eq(stocks.articleId, articleId), eq(stocks.locationId, locationId)),
