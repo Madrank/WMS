@@ -22,6 +22,9 @@ import ZonesPage from "./pages/ZonesPage.js";
 import LocationsPage from "./pages/LocationsPage.js";
 import UsersPage from "./pages/UsersPage.js";
 import AuditLogsPage from "./pages/AuditLogsPage.js";
+import OrdersPage from "./pages/OrdersPage.js";
+import OrderNewPage from "./pages/OrderNewPage.js";
+import OrderDetailPage from "./pages/OrderDetailPage.js";
 
 export default function App() {
   return (
@@ -49,6 +52,9 @@ export default function App() {
         <Route path="movements" element={<MovementsPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="audit" element={<AuditLogsPage />} />
+        <Route path="orders" element={<OrdersPage />} />
+        <Route path="orders/new" element={<OrderNewPage />} />
+        <Route path="orders/:id" element={<OrderDetailPage />} />
         <Route index element={<Navigate to="/dashboard" replace />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
