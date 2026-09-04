@@ -278,6 +278,50 @@ export const inventoryItems = pgTable(
   ],
 ); 
 
+export const orders = pgTable(
+  "orders",
+  {
+    id: serial("id").primaryKey(),
+    reference: varchar("reference", { length: 50 }).notNull(),
+    customerName: varchar("customer_name", { length: 100 }).notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("PENDING"),
+    createdBy: integer("created_by")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    validatedAt: timestamp("validated_at", { withTimezone: true }),
+    shippedAt: timestamp("shipped_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("orders_reference_idx").on(table.reference),
+    check(
+      "orders_status_check",
+      sql`${table.status} IN ('PENDING', 'VALIDATED', 'SHIPPED', 'CANCELLED')`,
+    ),
+  ],
+);
+
+export const orderItems = pgTable(
+  "order_items",
+  {
+    id: serial("id").primaryKey(),
+    orderId: integer("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    articleId: integer("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "restrict" }),
+    quantity: integer("quantity").notNull(),
+  },
+  (table) => [
+    check(
+      "order_items_quantity_positive_check",
+      sql`${table.quantity} > 0`,
+    ),
+  ],
+);
+
 export const auditLogs = pgTable("audit_logs", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
@@ -312,3 +356,7 @@ export type NewInventory = typeof inventories.$inferInsert;
 export type NewInventoryItem = typeof inventoryItems.$inferInsert;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type NewAuditLog = typeof auditLogs.$inferInsert;
+export type Order = typeof orders.$inferSelect;
+export type NewOrder = typeof orders.$inferInsert;
+export type OrderItem = typeof orderItems.$inferSelect;
+export type NewOrderItem = typeof orderItems.$inferInsert;
