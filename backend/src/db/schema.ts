@@ -55,6 +55,7 @@ export const articles = pgTable(
     barcode: varchar("barcode", { length: 100 }),
     unit: varchar("unit", { length: 20 }).notNull().default("unit"),
     minimumStock: integer("minimum_stock").notNull().default(0),
+    reservedQuantity: integer("reserved_quantity").notNull().default(0),
     active: boolean("active").notNull().default(true),
     ...timestamps,
   },
