@@ -1,0 +1,1 @@
+ALTER TABLE "articles" ADD COLUMN "reserved_quantity" integer DEFAULT 0 NOT NULL;

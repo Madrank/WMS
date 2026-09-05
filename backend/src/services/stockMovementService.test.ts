@@ -38,6 +38,7 @@ const activeArticle = {
   barcode: null,
   unit: "unité",
   minimumStock: 0,
+  reservedQuantity: 0,
   active: true,
   createdAt: new Date(),
   updatedAt: new Date(),
