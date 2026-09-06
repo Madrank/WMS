@@ -8,6 +8,7 @@ export interface Article {
   barcode: string | null;
   unit: string;
   minimumStock: number;
+  reservedQuantity: number;
   active: boolean;
   createdAt: string;
   updatedAt: string;

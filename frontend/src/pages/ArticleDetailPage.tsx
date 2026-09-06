@@ -42,6 +42,7 @@ export default function ArticleDetailPage() {
         <Row label="Code-barres" value={article.barcode ?? "—"} />
         <Row label="Unité" value={article.unit} />
         <Row label="Stock minimum" value={String(article.minimumStock)} />
+        <Row label="Stock réservé" value={String(article.reservedQuantity)} />
         <Row
           label="Statut"
           value={
