@@ -29,13 +29,15 @@ export const dashboardRepository = {
         reference: articles.reference,
         name: articles.name,
         minimumStock: articles.minimumStock,
+        reservedQuantity: articles.reservedQuantity,
         totalQuantity: sql<number>`COALESCE(SUM(${stocks.quantity}), 0)`,
+        availableQuantity: sql<number>`COALESCE(SUM(${stocks.quantity}), 0) - ${articles.reservedQuantity}`,
       })
       .from(articles)
       .leftJoin(stocks, eq(stocks.articleId, articles.id))
       .where(eq(articles.active, true))
-      .groupBy(articles.id)
-      .having(sql`COALESCE(SUM(${stocks.quantity}), 0) < ${articles.minimumStock}`);
+      .groupBy(articles.id, articles.reservedQuantity)
+      .having(sql`COALESCE(SUM(${stocks.quantity}), 0) - ${articles.reservedQuantity} < ${articles.minimumStock}`);
   },
 
   async getRecentMovements(limit = 10) {

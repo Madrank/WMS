@@ -1,6 +1,8 @@
-import { and, desc, eq, ilike, or } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { articles, type NewArticle } from "../db/schema.js";
+
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export const articleRepository = {
   async findAll({
@@ -76,6 +78,26 @@ export const articleRepository = {
     const [updated] = await db
       .update(articles)
       .set({ active })
+      .where(eq(articles.id, id))
+      .returning();
+    return updated;
+  },
+
+  async incrementReserved(id: number, quantity: number, tx?: Transaction) {
+    const client = tx ?? db;
+    const [updated] = await client
+      .update(articles)
+      .set({ reservedQuantity: sql`${articles.reservedQuantity} + ${quantity}` })
+      .where(eq(articles.id, id))
+      .returning();
+    return updated;
+  },
+
+  async decrementReserved(id: number, quantity: number, tx?: Transaction) {
+    const client = tx ?? db;
+    const [updated] = await client
+      .update(articles)
+      .set({ reservedQuantity: sql`GREATEST(${articles.reservedQuantity} - ${quantity}, 0)` })
       .where(eq(articles.id, id))
       .returning();
     return updated;
