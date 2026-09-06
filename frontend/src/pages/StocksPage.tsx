@@ -14,6 +14,7 @@ interface Article {
   id: number;
   reference: string;
   name: string;
+  reservedQuantity: number;
   active: boolean;
 }
 
@@ -233,12 +234,18 @@ export default function StocksPage() {
             <th className="p-3">Article</th>
             <th className="p-3">Emplacement</th>
             <th className="p-3">Quantité</th>
+            <th className="p-3">Réservé</th>
+            <th className="p-3">Disponible</th>
           </tr>
         </thead>
         <tbody>
           {stocks.map((stock) => {
             const article = articles.find((a) => a.id === stock.articleId);
             const location = locations.find((l) => l.id === stock.locationId);
+            const articleTotal = stocks
+              .filter((s) => s.articleId === stock.articleId)
+              .reduce((sum, s) => sum + s.quantity, 0);
+            const available = articleTotal - (article?.reservedQuantity ?? 0);
             return (
               <tr key={stock.id} className="border-b">
                 <td className="p-3">
@@ -246,6 +253,8 @@ export default function StocksPage() {
                 </td>
                 <td className="p-3">{location ? location.code : `#${stock.locationId}`}</td>
                 <td className="p-3">{stock.quantity}</td>
+                <td className="p-3">{article?.reservedQuantity ?? 0}</td>
+                <td className={`p-3 ${available < 0 ? "text-red-600" : ""}`}>{available}</td>
               </tr>
             );
           })}
