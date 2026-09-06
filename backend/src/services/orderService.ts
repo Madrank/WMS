@@ -1,5 +1,6 @@
 import { db } from "../db/index.js";
 import { orderRepository } from "../repositories/orderRepository.js";
+import { articleRepository } from "../repositories/articleRepository.js";
 import { stockRepository } from "../repositories/stockRepository.js";
 import { stockMovementRepository } from "../repositories/stockMovementRepository.js";
 import { articles, stocks } from "../db/schema.js";
@@ -64,15 +65,20 @@ export const orderService = {
       }
 
       for (const item of order.items) {
-        const available = await stockRepository.sumByArticle(item.articleId, tx);
+        const article = await db.query.articles.findFirst({ where: eq(articles.id, item.articleId) });
+        const totalStock = await stockRepository.sumByArticle(item.articleId, tx);
+        const available = totalStock - (article?.reservedQuantity ?? 0);
         if (available < item.quantity) {
-          const article = await db.query.articles.findFirst({ where: eq(articles.id, item.articleId) });
           throw {
             status: 409,
             code: "INSUFFICIENT_STOCK",
-            message: `Stock insuffisant pour l'article « ${article?.name ?? item.articleId} » (${available} disponible, ${item.quantity} requis).`,
+            message: `Stock disponible insuffisant pour l'article « ${article?.name ?? item.articleId} » (${available} disponible, ${item.quantity} requis).`,
           };
         }
+      }
+
+      for (const item of order.items) {
+        await articleRepository.incrementReserved(item.articleId, item.quantity, tx);
       }
 
       await orderRepository.updateStatus(id, "VALIDATED", tx);
@@ -96,6 +102,7 @@ export const orderService = {
 
       for (const item of order.items) {
         await this.destockArticle(item.articleId, item.quantity, userId, order.reference, tx);
+        await articleRepository.decrementReserved(item.articleId, item.quantity, tx);
       }
 
       await orderRepository.updateStatus(id, "SHIPPED", tx);
@@ -118,6 +125,11 @@ export const orderService = {
       }
       if (order.status === "CANCELLED") {
         throw { status: 409, code: "INVALID_STATUS", message: "La commande est déjà annulée." };
+      }
+      if (order.status === "VALIDATED") {
+        for (const item of order.items) {
+          await articleRepository.decrementReserved(item.articleId, item.quantity, tx);
+        }
       }
       await orderRepository.updateStatus(id, "CANCELLED", tx);
       const updated = await orderRepository.findById(id, tx);
